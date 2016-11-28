@@ -1,15 +1,20 @@
 package com.term.jaiden.james.phantom3gpscommunication;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import dji.common.error.DJIError;
+import dji.common.util.DJICommonCallbacks;
 import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.base.DJIBaseProduct;
 //import dji.sdk.base.DJISDKError;//broken?
@@ -18,7 +23,6 @@ import dji.sdk.flightcontroller.DJIFlightControllerDelegate;
 import dji.sdk.sdkmanager.DJISDKManager;
 
 public class MainUI extends AppCompatActivity {
-
     private static final String TAG = MainUI.class.getName();
     public static final String FLAG_CONNECTION_CHANGE = "dji_sdk_connection_change";
     private static DJIBaseProduct mProduct;
@@ -31,8 +35,16 @@ public class MainUI extends AppCompatActivity {
         //Initialize DJI SDK Manager
         mHandler = new Handler(Looper.getMainLooper());
         DJISDKManager.getInstance().initSDKManager(this, mDJISDKManagerCallback);
-        
-        new FollowMission(new Dialog(this));
+
+        Dialog dialog = new Dialog(this);
+
+        ((Button) dialog.findViewById(R.id.toggleButton2)).setOnClickListener(new FlightStatusHandler(dialog));
+        try {
+            ((LocationManager) getSystemService(Context.LOCATION_SERVICE)).requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 2, new FollowMission(dialog));
+        }catch (SecurityException ex) {
+            ex.printStackTrace();
+            ((TextView) dialog.findViewById(R.id.textView4)).append(ex.getLocalizedMessage());
+        }
     }
 
     private DJISDKManager.DJISDKManagerCallback mDJISDKManagerCallback = new DJISDKManager.DJISDKManagerCallback() {

@@ -21,24 +21,6 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true" />
 
-    <TextView
-        android:text="Firmware Version: "
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="30dp" />
-
-    <Button
-        android:text="Update Firmware"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/button"
-        android:layout_below="@+id/textView"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="10dp" />
-
     <ToggleButton
         android:text="ToggleButton"
         android:layout_width="wrap_content"
@@ -58,5 +40,36 @@
         android:id="@+id/textView2"
         android:layout_above="@+id/toggleButton2"
         android:layout_alignParentStart="true" />
+
+    <TextView
+        android:text="This application developed by:\nJames Norris\nJaiden Ferraccioli"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView"
+        android:layout_alignBottom="@+id/toggleButton2"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:text="This app will allow you to command the Phantom 3 Drone to take off, follow this device, and land upon request."
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView3"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="21dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView4"
+        android:layout_below="@+id/textView3"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="22dp"
+        android:layout_alignParentEnd="true"
+        android:layout_above="@+id/textView2"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:theme="@style/AlertDialog.AppCompat"
+        android:backgroundTint="?android:attr/colorControlHighlight"
+        android:background="?android:attr/colorControlHighlight" />
 
 </RelativeLayout>

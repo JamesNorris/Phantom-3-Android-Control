@@ -6,10 +6,13 @@ import android.location.LocationListener;
 import android.os.Bundle;
 import android.os.health.PackageHealthStats;
 import android.widget.Button;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileWriter;
 
+import dji.common.error.DJIError;
+import dji.common.util.DJICommonCallbacks;
 import dji.sdk.missionmanager.DJIFollowMeMission;
 
 /**
@@ -21,11 +24,12 @@ public class FollowMission implements LocationListener {
     private long last_send = -1;
     private Dialog dialog;
     private DJIFollowMeMission mission;
-    private Button button;
+    private Button button, button2;
 
     public FollowMission(Dialog dialog) {
         this.dialog = dialog;
         button = (Button) dialog.findViewById(R.id.toggleButton);
+        button2 = (Button) dialog.findViewById(R.id.toggleButton2);
     }
 
     @Override
@@ -35,19 +39,24 @@ public class FollowMission implements LocationListener {
             return;
         }
 
-        if (!(button).isActivated()) {
-            return;//will only run when the button is toggled on
+        if ((!button2.isActivated()) || (!(button).isActivated())) {
+            return;//will only run when both buttons are toggled on
         }
 
-        double lat = location.getLatitude();
-        double lon = location.getLongitude();
-        double alt = location.getAltitude();
-        float ber = location.getBearing();//0.0 to 360.0
+        final double lat = location.getLatitude();
+        final double lon = location.getLongitude();
+        final double alt = location.getAltitude();
+        final float ber = location.getBearing();//0.0 to 360.0
 
         if (mission == null) {
             mission = new DJIFollowMeMission(lat, lon, (float) alt);
         } else {
-            mission.updateFollowMeCoordinate(lat, lon, (float) alt, null);
+            mission.updateFollowMeCoordinate(lat, lon, (float) alt, new DJICommonCallbacks.DJICompletionCallback() {
+                @Override
+                public void onResult(DJIError djiError) {
+                    ((TextView) dialog.findViewById(R.id.textView4)).append("Following: <" + lat + ", " + lon + ", " + alt + ", " + ber + ">\n");
+                }
+            });
         }
 
         last_send = cur_time;
