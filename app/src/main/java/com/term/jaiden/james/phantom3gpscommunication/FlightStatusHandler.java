@@ -36,9 +36,11 @@ public class FlightStatusHandler implements View.OnClickListener {
             mission = new DJICustomMission(new ArrayList<DJIMissionStep>() {{new DJITakeoffStep(new DJICommonCallbacks.DJICompletionCallback() {
                 @Override
                 public void onResult(DJIError djiError) {
-                    if (djiError == null) {
-                        ((TextView) dialog.findViewById(R.id.textView4)).append("Flight Command: Take Off - Completed\n");
+                    if (djiError != null) {
+                        ((TextView) dialog.findViewById(R.id.textView4)).append(djiError.getDescription() + "\n");
+                        return;
                     }
+                    ((TextView) dialog.findViewById(R.id.textView4)).append("Flight Command: Take Off - Completed\n");
                 }
             });}});
             mission.addMissionToTheQueue();

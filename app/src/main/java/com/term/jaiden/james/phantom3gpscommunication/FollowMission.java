@@ -54,6 +54,10 @@ public class FollowMission implements LocationListener {
             mission.updateFollowMeCoordinate(lat, lon, (float) alt, new DJICommonCallbacks.DJICompletionCallback() {
                 @Override
                 public void onResult(DJIError djiError) {
+                    if (djiError != null) {
+                        ((TextView) dialog.findViewById(R.id.textView4)).append(djiError.getDescription() + "\n");
+                        return;
+                    }
                     ((TextView) dialog.findViewById(R.id.textView4)).append("Following: <" + lat + ", " + lon + ", " + alt + ", " + ber + ">\n");
                 }
             });
