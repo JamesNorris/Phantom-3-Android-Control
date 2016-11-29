@@ -17,7 +17,7 @@ import android.widget.Toast;
 import dji.common.error.DJIError;
 import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.base.DJIBaseProduct;
-//import dji.sdk.base.DJISDKError;//broken?
+import dji.common.error.DJISDKError;
 import dji.sdk.missionmanager.DJIMissionManager;
 import dji.sdk.sdkmanager.DJISDKManager;
 
@@ -58,7 +58,7 @@ public class MainUI extends AppCompatActivity {
         @Override
         public void onGetRegisteredResult(DJIError error) {
             Log.d(TAG, error == null ? "success" : error.getDescription());
-            /*if(error == DJISDKError.REGISTRATION_SUCCESS) {*/
+            if(error == DJISDKError.REGISTRATION_SUCCESS) {
                 DJISDKManager.getInstance().startConnectionToProduct();
                 Handler handler = new Handler(Looper.getMainLooper());
                 handler.post(new Runnable() {
@@ -67,7 +67,7 @@ public class MainUI extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "Register App Successful", Toast.LENGTH_LONG).show();
                     }
                 });
-            /*} else {
+            } else {
                 Handler handler = new Handler(Looper.getMainLooper());
                 handler.post(new Runnable() {
                     @Override
@@ -75,7 +75,7 @@ public class MainUI extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "Register App Failed! Please enter your App Key and check the network.", Toast.LENGTH_LONG).show();
                     }
                 });
-            }*/
+            }
             Log.e("TAG", error.toString());
         }
 
