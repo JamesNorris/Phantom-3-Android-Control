@@ -14,12 +14,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import dji.common.error.DJIError;
-import dji.common.util.DJICommonCallbacks;
 import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.base.DJIBaseProduct;
 //import dji.sdk.base.DJISDKError;//broken?
-import dji.sdk.flightcontroller.DJIFlightController;
-import dji.sdk.flightcontroller.DJIFlightControllerDelegate;
 import dji.sdk.missionmanager.DJIMissionManager;
 import dji.sdk.sdkmanager.DJISDKManager;
 
@@ -46,7 +43,7 @@ public class MainUI extends AppCompatActivity {
 
         ((Button) dialog.findViewById(R.id.toggleButton2)).setOnClickListener(new FlightStatusHandler(dialog));
         try {
-            ((LocationManager) getSystemService(Context.LOCATION_SERVICE)).requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 2, new FollowMission(dialog));
+            ((LocationManager) getSystemService(Context.LOCATION_SERVICE)).requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 2, new GPSFollowHandler(dialog));
         }catch (SecurityException ex) {
             ex.printStackTrace();
             ((TextView) dialog.findViewById(R.id.textView4)).append(ex.getLocalizedMessage());

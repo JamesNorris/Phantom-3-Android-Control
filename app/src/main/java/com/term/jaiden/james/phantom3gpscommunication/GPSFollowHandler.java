@@ -20,7 +20,7 @@ import dji.sdk.missionmanager.DJIMissionManager;
  * Created by James on 11/20/2016.
  */
 
-public class FollowMission implements LocationListener {
+public class GPSFollowHandler implements LocationListener {
     private static final long UPDATE_FREQUENCY_MS = 500;
     private long last_send = -1;
     private Dialog dialog;
@@ -28,7 +28,7 @@ public class FollowMission implements LocationListener {
     private Button button, button2;
     private TextView vout;
 
-    public FollowMission(Dialog dialog) {
+    public GPSFollowHandler(Dialog dialog) {
         this.dialog = dialog;
         button = (Button) dialog.findViewById(R.id.toggleButton);
         button2 = (Button) dialog.findViewById(R.id.toggleButton2);
