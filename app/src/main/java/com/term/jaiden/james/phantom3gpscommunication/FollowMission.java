@@ -14,6 +14,7 @@ import java.io.FileWriter;
 import dji.common.error.DJIError;
 import dji.common.util.DJICommonCallbacks;
 import dji.sdk.missionmanager.DJIFollowMeMission;
+import dji.sdk.missionmanager.DJIMissionManager;
 
 /**
  * Created by James on 11/20/2016.
@@ -25,11 +26,13 @@ public class FollowMission implements LocationListener {
     private Dialog dialog;
     private DJIFollowMeMission mission;
     private Button button, button2;
+    private TextView vout;
 
     public FollowMission(Dialog dialog) {
         this.dialog = dialog;
         button = (Button) dialog.findViewById(R.id.toggleButton);
         button2 = (Button) dialog.findViewById(R.id.toggleButton2);
+        vout = ((TextView) dialog.findViewById(R.id.textView4));
     }
 
     @Override
@@ -49,7 +52,33 @@ public class FollowMission implements LocationListener {
         final float ber = location.getBearing();//0.0 to 360.0
 
         if (mission == null) {
+            //init
             mission = new DJIFollowMeMission(lat, lon, (float) alt);
+
+            //prepare
+            DJIMissionManager manager = MainUI.getMissionManager();
+            manager.prepareMission(mission, null, new DJICommonCallbacks.DJICompletionCallback() {
+                @Override
+                public void onResult(DJIError djiError) {
+                    if (djiError != null) {
+                        vout.append(djiError.getDescription() + "\n");
+                        return;
+                    }
+                    vout.append("Flight Command: Follow - Initialized\n");
+                }
+            });
+
+            //execute
+            manager.startMissionExecution(new DJICommonCallbacks.DJICompletionCallback() {
+                @Override
+                public void onResult(DJIError djiError) {
+                    if (djiError != null) {
+                        vout.append(djiError.getDescription() + "\n");
+                        return;
+                    }
+                    vout.append("Flight Command: Started\n");
+                }
+            });
         } else {
             mission.updateFollowMeCoordinate(lat, lon, (float) alt, new DJICommonCallbacks.DJICompletionCallback() {
                 @Override
@@ -58,7 +87,7 @@ public class FollowMission implements LocationListener {
                         ((TextView) dialog.findViewById(R.id.textView4)).append(djiError.getDescription() + "\n");
                         return;
                     }
-                    ((TextView) dialog.findViewById(R.id.textView4)).append("Following: <" + lat + ", " + lon + ", " + alt + ", " + ber + ">\n");
+                    vout.append("Following: <" + lat + ", " + lon + ", " + alt + ", " + ber + ">\n");
                 }
             });
         }

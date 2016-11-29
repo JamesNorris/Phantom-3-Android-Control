@@ -20,6 +20,7 @@ import dji.sdk.base.DJIBaseProduct;
 //import dji.sdk.base.DJISDKError;//broken?
 import dji.sdk.flightcontroller.DJIFlightController;
 import dji.sdk.flightcontroller.DJIFlightControllerDelegate;
+import dji.sdk.missionmanager.DJIMissionManager;
 import dji.sdk.sdkmanager.DJISDKManager;
 
 public class MainUI extends AppCompatActivity {
@@ -27,6 +28,11 @@ public class MainUI extends AppCompatActivity {
     public static final String FLAG_CONNECTION_CHANGE = "dji_sdk_connection_change";
     private static DJIBaseProduct mProduct;
     private Handler mHandler;
+
+    /*
+    TODO change TextView for debug to a ScrollView
+    TODO landing
+     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,4 +118,8 @@ public class MainUI extends AppCompatActivity {
             sendBroadcast(intent);
         }
     };
+
+    protected static DJIMissionManager getMissionManager() {
+        return mProduct.getMissionManager();
+    }
 }

@@ -12,6 +12,9 @@ import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.flightcontroller.DJIFlightController;
 import dji.sdk.flightcontroller.DJIFlightControllerDelegate;
 import dji.sdk.missionmanager.DJICustomMission;
+import dji.sdk.missionmanager.DJIMission;
+import dji.sdk.missionmanager.DJIMissionManager;
+import dji.sdk.missionmanager.DJIWaypointMission;
 import dji.sdk.missionmanager.missionstep.DJIMissionStep;
 import dji.sdk.missionmanager.missionstep.DJITakeoffStep;
 
@@ -23,30 +26,72 @@ import dji.sdk.missionmanager.missionstep.DJITakeoffStep;
 public class FlightStatusHandler implements View.OnClickListener {
     private boolean enabled = false;
     private Dialog dialog;
-    private DJICustomMission mission;
+    private DJIMission mission;
+    private TextView vout;
 
     public FlightStatusHandler(Dialog dialog) {
         this.dialog = dialog;
+        vout = ((TextView) dialog.findViewById(R.id.textView4));
     }
 
     @Override
     public void onClick(View v) {
         enabled = !enabled;
+
+        //init
         if (enabled) {
+
+
             mission = new DJICustomMission(new ArrayList<DJIMissionStep>() {{new DJITakeoffStep(new DJICommonCallbacks.DJICompletionCallback() {
                 @Override
                 public void onResult(DJIError djiError) {
                     if (djiError != null) {
-                        ((TextView) dialog.findViewById(R.id.textView4)).append(djiError.getDescription() + "\n");
+                        vout.append(djiError.getDescription() + "\n");
                         return;
                     }
-                    ((TextView) dialog.findViewById(R.id.textView4)).append("Flight Command: Take Off - Completed\n");
+                    vout.append("Flight Command: Take Off - Initialized\n");
                 }
             });}});
-            mission.addMissionToTheQueue();
+            ((DJICustomMission) mission).addMissionToTheQueue();
             //controller.takeOff(null);
+
+
         } else {
+
+
+            mission = new DJIWaypointMission() {
+                {
+                    finishedAction = DJIWaypointMission.DJIWaypointMissionFinishedAction.AutoLand;
+                }};
+            vout.append("Flight Command: Land - Initialized\n");
             //controller.autoLanding(null);
+
+
         }
+
+        //prepare
+        DJIMissionManager manager = MainUI.getMissionManager();
+        manager.prepareMission(mission, null, new DJICommonCallbacks.DJICompletionCallback() {
+            @Override
+            public void onResult(DJIError djiError) {
+                if (djiError != null) {
+                    vout.append(djiError.getDescription() + "\n");
+                    return;
+                }
+                vout.append("Flight Command: Prepared\n");
+            }
+        });
+
+        //execute
+        manager.startMissionExecution(new DJICommonCallbacks.DJICompletionCallback() {
+            @Override
+            public void onResult(DJIError djiError) {
+                if (djiError != null) {
+                    vout.append(djiError.getDescription() + "\n");
+                    return;
+                }
+                vout.append("Flight Command: Started\n");
+            }
+        });
     }
 }
