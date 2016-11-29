@@ -21,7 +21,7 @@ import dji.sdk.missionmanager.DJIMissionManager;
  */
 
 public class GPSFollowHandler implements LocationListener {
-    private static final long UPDATE_FREQUENCY_MS = 500;
+    public static final long UPDATE_FREQUENCY_MS = 500;
     private long last_send = -1;
     private Dialog dialog;
     private DJIFollowMeMission mission;

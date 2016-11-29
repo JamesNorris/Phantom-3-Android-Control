@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
@@ -25,10 +26,10 @@ public class MainUI extends AppCompatActivity {
     public static final String FLAG_CONNECTION_CHANGE = "dji_sdk_connection_change";
     private static DJIBaseProduct mProduct;
     private Handler mHandler;
+    private TextView vout;
 
     /*
-    TODO change TextView for debug to a ScrollView
-    TODO landing
+    TODO implement return-home button
      */
 
     @Override
@@ -41,12 +42,15 @@ public class MainUI extends AppCompatActivity {
 
         Dialog dialog = new Dialog(this);
 
+        vout = ((TextView) dialog.findViewById(R.id.textView4));
+        vout.setMovementMethod(new ScrollingMovementMethod());
+
         ((Button) dialog.findViewById(R.id.toggleButton2)).setOnClickListener(new FlightStatusHandler(dialog));
         try {
-            ((LocationManager) getSystemService(Context.LOCATION_SERVICE)).requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 2, new GPSFollowHandler(dialog));
+            ((LocationManager) getSystemService(Context.LOCATION_SERVICE)).requestLocationUpdates(LocationManager.GPS_PROVIDER, GPSFollowHandler.UPDATE_FREQUENCY_MS, 1, new GPSFollowHandler(dialog));
         }catch (SecurityException ex) {
             ex.printStackTrace();
-            ((TextView) dialog.findViewById(R.id.textView4)).append(ex.getLocalizedMessage());
+            vout.append(ex.getLocalizedMessage());
         }
     }
 

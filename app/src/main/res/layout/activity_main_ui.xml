@@ -70,6 +70,7 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:theme="@style/AlertDialog.AppCompat"
         android:backgroundTint="?android:attr/colorControlHighlight"
-        android:background="?android:attr/colorControlHighlight" />
+        android:background="?android:attr/colorControlHighlight"
+        android:scrollbars="vertical" />
 
 </RelativeLayout>
