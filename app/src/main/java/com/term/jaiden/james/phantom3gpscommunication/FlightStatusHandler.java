@@ -25,11 +25,11 @@ import dji.sdk.missionmanager.missionstep.DJITakeoffStep;
 
 public class FlightStatusHandler implements View.OnClickListener {
     private boolean enabled = false;
-    private Dialog dialog;
+    private MainUI dialog;
     private DJIMission mission;
     private TextView vout;
 
-    public FlightStatusHandler(Dialog dialog) {
+    public FlightStatusHandler(MainUI dialog) {
         this.dialog = dialog;
         vout = ((TextView) dialog.findViewById(R.id.textView4));
     }

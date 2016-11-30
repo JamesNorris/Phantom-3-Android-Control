@@ -23,12 +23,12 @@ import dji.sdk.missionmanager.DJIMissionManager;
 public class GPSFollowHandler implements LocationListener {
     public static final long UPDATE_FREQUENCY_MS = 500;
     private long last_send = -1;
-    private Dialog dialog;
+    private MainUI dialog;
     private DJIFollowMeMission mission;
     private Button button, button2;
     private TextView vout;
 
-    public GPSFollowHandler(Dialog dialog) {
+    public GPSFollowHandler(MainUI dialog) {
         this.dialog = dialog;
         button = (Button) dialog.findViewById(R.id.toggleButton);
         button2 = (Button) dialog.findViewById(R.id.toggleButton2);

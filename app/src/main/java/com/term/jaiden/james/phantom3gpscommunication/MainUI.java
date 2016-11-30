@@ -32,22 +32,25 @@ public class MainUI extends AppCompatActivity {
     TODO implement return-home button
      */
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_ui);
         //Initialize DJI SDK Manager
+        System.out.println("Debug 1");
         mHandler = new Handler(Looper.getMainLooper());
         DJISDKManager.getInstance().initSDKManager(this, mDJISDKManagerCallback);
+        System.out.println("Debug 2");
 
-        Dialog dialog = new Dialog(this);
-
-        vout = ((TextView) dialog.findViewById(R.id.textView4));
+        vout = ((TextView) findViewById(R.id.textView4));
         vout.setMovementMethod(new ScrollingMovementMethod());
+        System.out.println("Debug 3");
 
-        ((Button) dialog.findViewById(R.id.toggleButton2)).setOnClickListener(new FlightStatusHandler(dialog));
+        ((Button) findViewById(R.id.toggleButton2)).setOnClickListener(new FlightStatusHandler(this));
+        System.out.println("Debug 4");
         try {
-            ((LocationManager) getSystemService(Context.LOCATION_SERVICE)).requestLocationUpdates(LocationManager.GPS_PROVIDER, GPSFollowHandler.UPDATE_FREQUENCY_MS, 1, new GPSFollowHandler(dialog));
+            ((LocationManager) getSystemService(Context.LOCATION_SERVICE)).requestLocationUpdates(LocationManager.GPS_PROVIDER, GPSFollowHandler.UPDATE_FREQUENCY_MS, 1, new GPSFollowHandler(this));
         }catch (SecurityException ex) {
             ex.printStackTrace();
             vout.append(ex.getLocalizedMessage());
