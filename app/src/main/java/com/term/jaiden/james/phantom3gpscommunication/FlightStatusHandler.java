@@ -36,8 +36,15 @@ public class FlightStatusHandler implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
+        if(enabled) {
+            System.out.println("[Flight Handler] Landing");
+            vout.append("[Flight Handler] Landing\n");
+        }
+        if(!enabled){
+            System.out.println("[Flight Handler] Landing");
+            vout.append("[Flight Handler] Take Off\n");
+        }
         enabled = !enabled;
-
         //init
         if (enabled) {
 

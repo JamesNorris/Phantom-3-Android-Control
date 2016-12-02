@@ -14,6 +14,17 @@
         android:text="ToggleButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/toggleButton2"
+        android:textOff="FLY"
+        android:textOn="LAND"
+        android:layout_above="@+id/toggleButton"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/map_v" />
+
+    <ToggleButton
+        android:text="ToggleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:id="@+id/toggleButton"
         android:textOn="TRANSMITTING FOLLOW REQUEST"
         android:textOff="TRANSMIT FOLLOW REQUEST"
@@ -21,32 +32,19 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true" />
 
-    <ToggleButton
-        android:text="ToggleButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/toggleButton2"
-        android:textOff="FLY"
-        android:textOn="LAND"
-        android:layout_above="@+id/toggleButton"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="62dp"
-        android:layout_alignEnd="@+id/button" />
-
     <TextView
-        android:text="Aircraft Control:"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/textView2"
-        android:layout_above="@+id/toggleButton2"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:text="This application developed by:\nJames Norris\nJaiden Ferraccioli"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView"
-        android:layout_alignBottom="@+id/toggleButton2"
+        android:id="@+id/textView4"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:theme="@style/AlertDialog.AppCompat"
+        android:backgroundTint="?android:attr/colorControlHighlight"
+        android:background="?android:attr/colorControlHighlight"
+        android:scrollbars="vertical"
+        android:textColor="@android:color/black"
+        android:layout_above="@+id/textView2"
+        android:layout_below="@+id/textView3"
+        android:layout_toStartOf="@+id/locate"
         android:layout_alignParentEnd="true" />
 
     <TextView
@@ -56,21 +54,32 @@
         android:id="@+id/textView3"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="21dp" />
+        android:layout_toStartOf="@+id/textView" />
 
     <TextView
-        android:layout_width="match_parent"
+        android:text="Aircraft Control:"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textView4"
-        android:layout_below="@+id/textView3"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="22dp"
-        android:layout_alignParentEnd="true"
-        android:layout_above="@+id/textView2"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:theme="@style/AlertDialog.AppCompat"
-        android:backgroundTint="?android:attr/colorControlHighlight"
-        android:background="?android:attr/colorControlHighlight"
-        android:scrollbars="vertical" />
+        android:id="@+id/textView2"
+        android:layout_marginStart="11dp"
+        android:layout_above="@+id/toggleButton2"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:text="Developed by:\nJames Norris\nJaiden Ferraccioli"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:text="Map"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/map_v"
+        android:layout_above="@+id/toggleButton"
+        android:layout_alignStart="@+id/textView"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>
