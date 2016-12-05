@@ -1,6 +1,10 @@
 [
     {
-        "merged": "/Users/jaidenferraccioli/Phantom-3-Android-Control/dJISDKLIB/build/intermediates/res/merged/androidTest/debug/xml/accessory_filter.xml",
-        "source": "/Users/jaidenferraccioli/Phantom-3-Android-Control/dJISDKLIB/build/intermediates/bundles/debug/res/xml/accessory_filter.xml"
+        "merged": "C:\\Users\\jaidenferraccioli\\Phantom-3-Android-Control\\dJISDKLIB\\build\\intermediates\\res\\merged\\androidTest\\debug\\xml\\accessory_filter.xml",
+        "source": "C:\\Users\\jaidenferraccioli\\Phantom-3-Android-Control\\dJISDKLIB\\build\\intermediates\\bundles\\debug\\res\\xml\\accessory_filter.xml"
+    },
+    {
+        "merged": "C:\\Users\\jnorr\\AndroidStudioProjects\\Phantom3GPSCommunication\\dJISDKLIB\\build\\intermediates\\res\\merged\\androidTest\\debug\\xml\\accessory_filter.xml",
+        "source": "C:\\Users\\jnorr\\AndroidStudioProjects\\Phantom3GPSCommunication\\dJISDKLIB\\build\\intermediates\\bundles\\debug\\res\\xml\\accessory_filter.xml"
     }
 ]

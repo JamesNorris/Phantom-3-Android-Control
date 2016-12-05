@@ -174,6 +174,8 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         }
     };
 
+
+
     private void onProductConnectionChange()
     {
         initFlightController();

@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="/Users/jaidenferraccioli/Phantom-3-Android-Control/dJISDKLIB/src/main/shaders"/></dataSet><dataSet config="release"><source path="/Users/jaidenferraccioli/Phantom-3-Android-Control/dJISDKLIB/src/release/shaders"/></dataSet></merger>
+<merger version="3"><dataSet config="main"><source path="C:\Users\jnorr\AndroidStudioProjects\Phantom3GPSCommunication\dJISDKLIB\src\main\shaders"/></dataSet><dataSet config="release"><source path="C:\Users\jnorr\AndroidStudioProjects\Phantom3GPSCommunication\dJISDKLIB\src\release\shaders"/></dataSet></merger>
