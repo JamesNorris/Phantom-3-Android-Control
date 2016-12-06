@@ -143,31 +143,29 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         IntentFilter filter = new IntentFilter();
         filter.addAction(FLAG_CONNECTION_CHANGE);
         registerReceiver(mReceiver, filter);
-        initUI();
+
         //Initialize DJI SDK Manager
         //mHandler = new Handler(Looper.getMainLooper());
         DJISDKManager.getInstance().initSDKManager(this, mDJISDKManagerCallback);
 
-        try {
-            //register for GPS updates
-            GPSFollowHandler fh = new GPSFollowHandler(this);
-            LocationManager lm = ((LocationManager) getSystemService(Context.LOCATION_SERVICE));
-            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, GPSFollowHandler.UPDATE_FREQUENCY_MS, .5F/*meter*/, fh);
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPSFollowHandler.UPDATE_FREQUENCY_MS, .5F/*meter*/, fh);
-
-        } catch (SecurityException ex) {
-            ex.printStackTrace();
-            vout.append(ex.toString() + "\n");
-        }
-    }
-
-    private void initUI() {
         vout = ((TextView) findViewById(R.id.textView4));
         vout.setMovementMethod(new ScrollingMovementMethod());
         flight = (Button) findViewById(R.id.toggleButton2);
         map = (Button) findViewById(R.id.map_v);
         flight.setOnClickListener(new FlightStatusHandler(this));
         map.setOnClickListener(this);
+
+        try {
+            //register for GPS updates
+            GPSFollowHandler fh = new GPSFollowHandler(this);
+            LocationManager lm = ((LocationManager) getSystemService(Context.LOCATION_SERVICE));
+            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0/*GPSFollowHandler.UPDATE_FREQUENCY_MS, .5F/*meter*/, fh);
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0/*GPSFollowHandler.UPDATE_FREQUENCY_MS, .5F/*meter*/, fh);
+
+        } catch (SecurityException ex) {
+            ex.printStackTrace();
+            vout.append(ex.toString() + "\n");
+        }
     }
 
     protected BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -613,7 +611,11 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
     }
 
     public DJIMissionManager getMissionManager() {
-        return getBaseProduct().getMissionManager();
+        if (mProduct == null) {
+            System.out.println("Mission manager is null!");
+            return null;
+        }
+        return mProduct.getMissionManager();
     }
 
     public DJIBaseProduct getBaseProduct() {

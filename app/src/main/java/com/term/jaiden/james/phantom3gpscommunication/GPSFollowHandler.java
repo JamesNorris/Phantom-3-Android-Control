@@ -38,22 +38,16 @@ public class GPSFollowHandler implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-        long cur_time = System.currentTimeMillis();
-
-        vout.append("1, ");
-
-        if (button.isChecked()) {
-            vout.append("2, ");
-        }
-
-        if (last_send != -1 && (cur_time - last_send) < UPDATE_FREQUENCY_MS) {
-            return;
-        }
-
         if ((!button2.isChecked()) || (!(button).isChecked())) {
             mission = null;
             last_send = -1;
             return;//will only run when both buttons are toggled on
+        }
+
+        long cur_time = System.currentTimeMillis();
+
+        if (last_send != -1 && (cur_time - last_send) < UPDATE_FREQUENCY_MS) {
+            return;
         }
 
         final double lat = location.getLatitude();
@@ -61,18 +55,25 @@ public class GPSFollowHandler implements LocationListener {
         final double alt = location.getAltitude();
         final float ber = location.getBearing();//0.0 to 360.0
 
+        System.out.println("1");
+
         if (mission == null) {
-            vout.append("3, ");
+            System.out.println("2");
 
             //init
             mission = new DJIFollowMeMission(lat, lon, (float) alt);
+
+            System.out.println("3");
 
             //prepare
             DJIMissionManager manager = dialog.getMissionManager();
 
             if (manager == null) {
                 vout.append("NULL MANAGER FOR GPS FOLLOW\n");
+                return;
             }
+
+            System.out.println("4");
 
             manager.prepareMission(mission, null, new DJICommonCallbacks.DJICompletionCallback() {
                 @Override
@@ -85,6 +86,8 @@ public class GPSFollowHandler implements LocationListener {
                 }
             });
 
+            System.out.println("5");
+
             //execute
             manager.startMissionExecution(new DJICommonCallbacks.DJICompletionCallback() {
                 @Override
@@ -96,6 +99,8 @@ public class GPSFollowHandler implements LocationListener {
                     vout.append("Flight Command: Started\n");
                 }
             });
+
+            System.out.println("6");
 
         } else {
 
