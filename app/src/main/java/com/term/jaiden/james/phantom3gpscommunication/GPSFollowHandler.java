@@ -68,7 +68,12 @@ public class GPSFollowHandler implements LocationListener {
             mission = new DJIFollowMeMission(lat, lon, (float) alt);
 
             //prepare
-            DJIMissionManager manager = MainUI.getMissionManager();
+            DJIMissionManager manager = dialog.getMissionManager();
+
+            if (manager == null) {
+                vout.append("NULL MANAGER FOR GPS FOLLOW\n");
+            }
+
             manager.prepareMission(mission, null, new DJICommonCallbacks.DJICompletionCallback() {
                 @Override
                 public void onResult(DJIError djiError) {

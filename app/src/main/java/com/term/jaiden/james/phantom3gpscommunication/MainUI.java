@@ -1,6 +1,7 @@
 package com.term.jaiden.james.phantom3gpscommunication;
 
 import android.Manifest;
+import android.app.Application;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -60,7 +61,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
     private double droneLocationLat = 181, droneLocationLng = 181;
     private Marker droneMarker = null; // For when we implement map view
     private DJIFlightController mFlightController;
-    private static DJIBaseProduct mProduct;
+    private DJIBaseProduct mProduct;
     //private Handler mHandler;
     private TextView vout;
     private GoogleMap gMap;
@@ -76,23 +77,23 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
 
 
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
         onProductConnectionChange();
     }
 
     @Override
-    protected void onPause(){
+    protected void onPause() {
         super.onPause();
     }
 
     @Override
-    protected void onDestroy(){
+    protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mReceiver);
     }
 
-    public void onReturn(View view){
+    public void onReturn(View view) {
         Log.d(TAG, "onReturn");
         this.finish();
     }
@@ -140,7 +141,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         setContentView(R.layout.activity_main_ui);
         //Register BroadcastReceiver
         IntentFilter filter = new IntentFilter();
-        filter.addAction(DJIApplication.FLAG_CONNECTION_CHANGE);
+        filter.addAction(FLAG_CONNECTION_CHANGE);
         registerReceiver(mReceiver, filter);
         initUI();
         //Initialize DJI SDK Manager
@@ -151,12 +152,12 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
             //register for GPS updates
             GPSFollowHandler fh = new GPSFollowHandler(this);
             LocationManager lm = ((LocationManager) getSystemService(Context.LOCATION_SERVICE));
-            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, GPSFollowHandler.UPDATE_FREQUENCY_MS, 1/*meter*/, fh);
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPSFollowHandler.UPDATE_FREQUENCY_MS, 1/*meter*/, fh);
+            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, GPSFollowHandler.UPDATE_FREQUENCY_MS, .5F/*meter*/, fh);
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPSFollowHandler.UPDATE_FREQUENCY_MS, .5F/*meter*/, fh);
 
-        }catch (SecurityException ex) {
+        } catch (SecurityException ex) {
             ex.printStackTrace();
-            vout.append(ex.getLocalizedMessage());
+            vout.append(ex.toString() + "\n");
         }
     }
 
@@ -177,20 +178,17 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
     };
 
 
-
-    private void onProductConnectionChange()
-    {
+    private void onProductConnectionChange() {
         initFlightController();
         initMissionManager();
     }
 
     private void initFlightController() {
-        vout.append("Initializing Flight Controller\n");
-        DJIBaseProduct product = DJIApplication.getProductInstance();
+        vout.append("Initializing Flight Controller: ");
         //vout.append("Product: " + product + "\nConnection Status: " + product.isConnected() + "\n");
-        if (product != null && product.isConnected()) {
-            if (product instanceof DJIAircraft) {
-                mFlightController = ((DJIAircraft) product).getFlightController();
+        if (mProduct != null && mProduct.isConnected()) {
+            if (mProduct instanceof DJIAircraft) {
+                mFlightController = ((DJIAircraft) mProduct).getFlightController();
             }
         }
         if (mFlightController != null) {
@@ -203,13 +201,14 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
                 }
             });
         }
+        vout.append((mFlightController == null ? "null" : "Initialized") + "\n");
     }
 
     public static boolean checkGpsCoordinates(double latitude, double longitude) {
         return (latitude > -90 && latitude < 90 && longitude > -180 && longitude < 180) && (latitude != 0f && longitude != 0f);
     }
 
-    private void updateDroneLocation(){
+    private void updateDroneLocation() {
         LatLng pos = new LatLng(droneLocationLat, droneLocationLng);
         vout.append("Update drone location to " + pos + "\n");
         //Create MarkerOptions object
@@ -229,8 +228,8 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         });
     }
 
-    private void showMapDialog(){
-        LinearLayout mapView = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_mapview, null);
+    private void showMapDialog() {
+        LinearLayout mapView = (LinearLayout) getLayoutInflater().inflate(R.layout.dialog_mapview, null);
         locate = (Button) mapView.findViewById(R.id.locate);
         config = (Button) mapView.findViewById(R.id.config);
         add = (Button) mapView.findViewById(R.id.add);
@@ -245,36 +244,35 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         mapFragment.getMapAsync(this);
 
         new AlertDialog.Builder(this)
-                    .setTitle("")
-                    .setView(mapView)
-                    .setPositiveButton("Finish",new DialogInterface.OnClickListener(){
-                        public void onClick(DialogInterface dialog, int id) {
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-                        }
-                    })
-                    .create()
-                    .show();
+                .setTitle("")
+                .setView(mapView)
+                .setPositiveButton("Finish", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                })
+                .create()
+                .show();
     }
 
-    private void showSettingDialog(){
-        LinearLayout wayPointSettings = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_waypointsetting, null);
+    private void showSettingDialog() {
+        LinearLayout wayPointSettings = (LinearLayout) getLayoutInflater().inflate(R.layout.dialog_waypointsetting, null);
         final TextView wpAltitude_TV = (TextView) wayPointSettings.findViewById(R.id.altitude);
         RadioGroup speed_RG = (RadioGroup) wayPointSettings.findViewById(R.id.speed);
         RadioGroup actionAfterFinished_RG = (RadioGroup) wayPointSettings.findViewById(R.id.actionAfterFinished);
         RadioGroup heading_RG = (RadioGroup) wayPointSettings.findViewById(R.id.heading);
-        speed_RG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener(){
+        speed_RG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                // TODO Auto-generated method stub
-                if (checkedId == R.id.lowSpeed){
+                if (checkedId == R.id.lowSpeed) {
                     mSpeed = 3.0f;
-                } else if (checkedId == R.id.MidSpeed){
+                } else if (checkedId == R.id.MidSpeed) {
                     mSpeed = 5.0f;
-                } else if (checkedId == R.id.HighSpeed){
+                } else if (checkedId == R.id.HighSpeed) {
                     mSpeed = 10.0f;
                 }
             }
@@ -282,15 +280,14 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         actionAfterFinished_RG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                // TODO Auto-generated method stub
                 Log.d(TAG, "Select finish action");
-                if (checkedId == R.id.finishNone){
+                if (checkedId == R.id.finishNone) {
                     mFinishedAction = DJIWaypointMission.DJIWaypointMissionFinishedAction.NoAction;
-                } else if (checkedId == R.id.finishGoHome){
+                } else if (checkedId == R.id.finishGoHome) {
                     mFinishedAction = DJIWaypointMission.DJIWaypointMissionFinishedAction.GoHome;
-                } else if (checkedId == R.id.finishAutoLanding){
+                } else if (checkedId == R.id.finishAutoLanding) {
                     mFinishedAction = DJIWaypointMission.DJIWaypointMissionFinishedAction.AutoLand;
-                } else if (checkedId == R.id.finishToFirst){
+                } else if (checkedId == R.id.finishToFirst) {
                     mFinishedAction = DJIWaypointMission.DJIWaypointMissionFinishedAction.GoFirstWaypoint;
                 }
             }
@@ -313,14 +310,14 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         new AlertDialog.Builder(this)
                 .setTitle("")
                 .setView(wayPointSettings)
-                .setPositiveButton("Finish",new DialogInterface.OnClickListener(){
+                .setPositiveButton("Finish", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         String altitudeString = wpAltitude_TV.getText().toString();
                         altitude = Integer.parseInt(nulltoIntegerDefault(altitudeString));
-                        Log.e(TAG,"altitude "+altitude);
-                        Log.e(TAG,"speed "+mSpeed);
-                        Log.e(TAG, "mFinishedAction "+mFinishedAction);
-                        Log.e(TAG, "mHeadingMode "+mHeadingMode);
+                        Log.e(TAG, "altitude " + altitude);
+                        Log.e(TAG, "speed " + mSpeed);
+                        Log.e(TAG, "mFinishedAction " + mFinishedAction);
+                        Log.e(TAG, "mHeadingMode " + mHeadingMode);
                         configWayPointMission();
                     }
                 })
@@ -333,13 +330,15 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
                 .show();
     }
 
-    private void configWayPointMission(){
-        if (mWaypointMission != null){
+    private void configWayPointMission() {
+        if (mWaypointMission != null) {
+
             mWaypointMission.finishedAction = mFinishedAction;
             mWaypointMission.headingMode = mHeadingMode;
             mWaypointMission.autoFlightSpeed = mSpeed;
-            if (mWaypointMission.waypointsList.size() > 0){
-                for (int i=0; i< mWaypointMission.waypointsList.size(); i++){
+
+            if (mWaypointMission.waypointsList.size() > 0) {
+                for (int i = 0; i < mWaypointMission.waypointsList.size(); i++) {
                     mWaypointMission.getWaypointAtIndex(i).altitude = altitude;
                 }
                 setResultToToast("Set Waypoint altitude success");
@@ -348,14 +347,13 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
     }
 
     private void initMissionManager() {
-        DJIBaseProduct product = DJIApplication.getProductInstance();
-        if (product == null || !product.isConnected()) {
+        if (mProduct == null || !mProduct.isConnected()) {
             setResultToToast("Product Not Connected");
             mMissionManager = null;
             return;
         } else {
             setResultToToast("Product Connected");
-            mMissionManager = product.getMissionManager();
+            mMissionManager = mProduct.getMissionManager();
             //mMissionManager.setMissionProgressStatusCallback(this);
             //mMissionManager.setMissionExecutionFinishedCallback(this);
         }
@@ -369,16 +367,18 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         setResultToToast("Execution finished: " + (error == null ? "Success" : error.getDescription()));
     }
 
-    String nulltoIntegerDefault(String value){
-        if(!isIntValue(value)) value="0";
+    String nulltoIntegerDefault(String value) {
+        if (!isIntValue(value)) value = "0";
         return value;
     }
-    boolean isIntValue(String val)
-    {
+
+    boolean isIntValue(String val) {
         try {
-            val=val.replace(" ","");
+            val = val.replace(" ", "");
             Integer.parseInt(val);
-        } catch (Exception e) {return false;}
+        } catch (Exception e) {
+            return false;
+        }
         return true;
     }
 
@@ -402,7 +402,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         gMap.setOnMapClickListener(this);// add the listener for click for a map object
     }
 
-    private void setResultToToast(final String string){
+    private void setResultToToast(final String string) {
         MainUI.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -413,7 +413,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
 
     @Override
     public void onMapClick(LatLng point) {
-        if (isAdd){
+        if (isAdd) {
             vout.append("Added waypoint at " + point + "\n");
             markWaypoint(point);
             DJIWaypoint mWaypoint = new DJIWaypoint(point.latitude, point.longitude, altitude);
@@ -422,13 +422,13 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
                 mWaypointMission.addWaypoint(mWaypoint);
                 setResultToToast("AddWaypoint");
             }
-        }else{
+        } else {
             vout.append("Unable to place waypoint at " + point + "\n");
             setResultToToast("Cannot add waypoint");
         }
     }
 
-    private void markWaypoint(LatLng point){
+    private void markWaypoint(LatLng point) {
         //Create MarkerOptions object
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(point);
@@ -437,7 +437,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         mMarkers.put(mMarkers.size(), marker);
     }
 
-    private void prepareWayPointMission(){
+    private void prepareWayPointMission() {
         if (mMissionManager != null && mWaypointMission != null) {
             DJIMission.DJIMissionProgressHandler progressHandler = new DJIMission.DJIMissionProgressHandler() {
                 @Override
@@ -453,7 +453,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         }
     }
 
-    private void startWaypointMission(){
+    private void startWaypointMission() {
         if (mMissionManager != null) {
             mMissionManager.startMissionExecution(new DJICommonCallbacks.DJICompletionCallback() {
                 @Override
@@ -463,7 +463,8 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
             });
         }
     }
-    private void stopWaypointMission(){
+
+    private void stopWaypointMission() {
         if (mMissionManager != null) {
             mMissionManager.stopMissionExecution(new DJICommonCallbacks.DJICompletionCallback() {
                 @Override
@@ -471,7 +472,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
                     setResultToToast("Stop: " + (error == null ? "Success" : error.getDescription()));
                 }
             });
-            if (mWaypointMission != null){
+            if (mWaypointMission != null) {
                 mWaypointMission.removeAllWaypoints();
             }
         }
@@ -480,44 +481,44 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.map_v:{
+            case R.id.map_v: {
                 showMapDialog();
             }
-            case R.id.prepare:{
+            case R.id.prepare: {
                 prepareWayPointMission();
                 break;
             }
-            case R.id.add:{
+            case R.id.add: {
                 enableDisableAdd();
                 break;
             }
-            case R.id.clear:{
+            case R.id.clear: {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         gMap.clear();
                     }
                 });
-                if (mWaypointMission != null){
+                if (mWaypointMission != null) {
                     mWaypointMission.removeAllWaypoints(); // Remove all the waypoints added to the task
                 }
                 break;
             }
-            case R.id.locate:{
+            case R.id.locate: {
                 //TODO Maybe error with camera update is here?
                 updateDroneLocation();
                 cameraUpdate();
                 break;
             }
-            case R.id.config:{
+            case R.id.config: {
                 showSettingDialog();
                 break;
             }
-            case R.id.start:{
+            case R.id.start: {
                 startWaypointMission();
                 break;
             }
-            case R.id.stop:{
+            case R.id.stop: {
                 stopWaypointMission();
                 break;
             }
@@ -526,11 +527,11 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         }
     }
 
-    private void enableDisableAdd(){
+    private void enableDisableAdd() {
         if (isAdd == false) {
             isAdd = true;
             add.setText("Exit");
-        }else{
+        } else {
             isAdd = false;
             add.setText("Add");
         }
@@ -553,7 +554,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         @Override
         public void onGetRegisteredResult(DJIError error) {
             Log.d(TAG, error == null ? "success" : error.getDescription());
-            if(error == DJISDKError.REGISTRATION_SUCCESS) {
+            if (error == DJISDKError.REGISTRATION_SUCCESS) {
                 DJISDKManager.getInstance().startConnectionToProduct();
                 Handler handler = new Handler(Looper.getMainLooper());
                 handler.post(new Runnable() {
@@ -577,7 +578,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         @Override
         public void onProductChanged(DJIBaseProduct oldProduct, DJIBaseProduct newProduct) {
             mProduct = newProduct;
-            if(mProduct != null) {
+            if (mProduct != null) {
                 mProduct.setDJIBaseProductListener(mDJIBaseProductListener);
             }
             notifyStatusChange();
@@ -587,11 +588,12 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
     private DJIBaseProduct.DJIBaseProductListener mDJIBaseProductListener = new DJIBaseProduct.DJIBaseProductListener() {
         @Override
         public void onComponentChange(DJIBaseProduct.DJIComponentKey key, DJIBaseComponent oldComponent, DJIBaseComponent newComponent) {
-            if(newComponent != null) {
+            if (newComponent != null) {
                 newComponent.setDJIComponentListener(mDJIComponentListener);
             }
             notifyStatusChange();
         }
+
         @Override
         public void onProductConnectivityChanged(boolean isConnected) {
             notifyStatusChange();
@@ -606,19 +608,15 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
     };
 
     private void notifyStatusChange() {
-        //mHandler.removeCallbacks(updateRunnable);
-        //mHandler.postDelayed(updateRunnable, 500);
+        Intent intent = new Intent(FLAG_CONNECTION_CHANGE);
+        sendBroadcast(intent);
     }
 
-    private Runnable updateRunnable = new Runnable() {
-        @Override
-        public void run() {
-            Intent intent = new Intent(FLAG_CONNECTION_CHANGE);
-            sendBroadcast(intent);
-        }
-    };
+    public DJIMissionManager getMissionManager() {
+        return getBaseProduct().getMissionManager();
+    }
 
-    protected static DJIMissionManager getMissionManager() {
-        return mProduct.getMissionManager();
+    public DJIBaseProduct getBaseProduct() {
+        return mProduct;
     }
 }

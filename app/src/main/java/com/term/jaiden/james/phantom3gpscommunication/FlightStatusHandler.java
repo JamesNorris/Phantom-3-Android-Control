@@ -38,7 +38,7 @@ public class FlightStatusHandler implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        DJIBaseProduct product = DJIApplication.getProductInstance();
+        DJIBaseProduct product = dialog.getBaseProduct();
         if (product == null) {
             vout.append("Product null!\n");
             return;
@@ -51,7 +51,7 @@ public class FlightStatusHandler implements View.OnClickListener {
         }
 
         //check connectivity
-        if (!MainUI.getMissionManager().isConnected()) {
+        if (!dialog.getMissionManager().isConnected()) {
             System.out.println("NOT CONNECTED");
             return;
         }
