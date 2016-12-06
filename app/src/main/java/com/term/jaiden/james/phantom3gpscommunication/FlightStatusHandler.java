@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import dji.common.error.DJIError;
 import dji.common.util.DJICommonCallbacks;
 import dji.sdk.base.DJIBaseComponent;
+import dji.sdk.base.DJIBaseProduct;
 import dji.sdk.flightcontroller.DJIFlightController;
 import dji.sdk.flightcontroller.DJIFlightControllerDelegate;
 import dji.sdk.missionmanager.DJICustomMission;
@@ -37,6 +38,18 @@ public class FlightStatusHandler implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
+        DJIBaseProduct product = DJIApplication.getProductInstance();
+        if (product == null) {
+            vout.append("Product null!\n");
+            return;
+        }
+
+        DJIFlightController fc = ((DJIAircraft) product).getFlightController();
+        if (fc == null) {
+            vout.append("Flight Controller null!\n");
+            return;
+        }
+
         //check connectivity
         if (!MainUI.getMissionManager().isConnected()) {
             System.out.println("NOT CONNECTED");
@@ -53,7 +66,7 @@ public class FlightStatusHandler implements View.OnClickListener {
             System.out.println("[Flight Handler] Taking Off");
             vout.append("[Flight Handler] Take Off\n");
 
-            ((DJIAircraft) DJIApplication.getProductInstance()).getFlightController().takeOff(new DJICommonCallbacks.DJICompletionCallback() {
+            fc.takeOff(new DJICommonCallbacks.DJICompletionCallback() {
                 @Override
                 public void onResult(DJIError djiError) {
                     if (djiError != null) {
@@ -70,7 +83,7 @@ public class FlightStatusHandler implements View.OnClickListener {
             System.out.println("[Flight Handler] Landing");
             vout.append("[Flight Handler] Landing\n");
 
-            ((DJIAircraft) DJIApplication.getProductInstance()).getFlightController().autoLanding(new DJICommonCallbacks.DJICompletionCallback() {
+            fc.autoLanding(new DJICommonCallbacks.DJICompletionCallback() {
                 @Override
                 public void onResult(DJIError djiError) {
                     if (djiError != null) {

@@ -61,7 +61,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
     private Marker droneMarker = null; // For when we implement map view
     private DJIFlightController mFlightController;
     private static DJIBaseProduct mProduct;
-    private Handler mHandler;
+    //private Handler mHandler;
     private TextView vout;
     private GoogleMap gMap;
     private Button locate, config, flight, add, clear, prepare, map;
@@ -74,16 +74,13 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
     private DJIWaypointMission mWaypointMission;
     private DJIMissionManager mMissionManager;
 
-    /*
-    TODO implement return-home button
-     */
 
     @Override
     protected void onResume(){
         super.onResume();
-        initFlightController();
-        initMissionManager();
+        onProductConnectionChange();
     }
+
     @Override
     protected void onPause(){
         super.onPause();
@@ -147,11 +144,16 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         registerReceiver(mReceiver, filter);
         initUI();
         //Initialize DJI SDK Manager
-        mHandler = new Handler(Looper.getMainLooper());
+        //mHandler = new Handler(Looper.getMainLooper());
         DJISDKManager.getInstance().initSDKManager(this, mDJISDKManagerCallback);
 
         try {
-            ((LocationManager) getSystemService(Context.LOCATION_SERVICE)).requestLocationUpdates(LocationManager.GPS_PROVIDER, GPSFollowHandler.UPDATE_FREQUENCY_MS, 1, new GPSFollowHandler(this));
+            //register for GPS updates
+            GPSFollowHandler fh = new GPSFollowHandler(this);
+            LocationManager lm = ((LocationManager) getSystemService(Context.LOCATION_SERVICE));
+            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, GPSFollowHandler.UPDATE_FREQUENCY_MS, 1/*meter*/, fh);
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPSFollowHandler.UPDATE_FREQUENCY_MS, 1/*meter*/, fh);
+
         }catch (SecurityException ex) {
             ex.printStackTrace();
             vout.append(ex.getLocalizedMessage());
@@ -181,6 +183,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         initFlightController();
         initMissionManager();
     }
+
     private void initFlightController() {
         vout.append("Initializing Flight Controller\n");
         DJIBaseProduct product = DJIApplication.getProductInstance();
@@ -393,6 +396,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         gMap.addMarker(new MarkerOptions().position(Shenzhen).title("Marker in Shenzhen"));
         gMap.moveCamera(CameraUpdateFactory.newLatLng(Shenzhen));
     }
+
     private void setUpMap() {
         vout.append("Setting up Map\n");
         gMap.setOnMapClickListener(this);// add the listener for click for a map object
@@ -567,7 +571,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
                     }
                 });
             }
-            Log.e("TAG", error.toString());
+            Log.e("TAG", error.getDescription());
         }
 
         @Override
@@ -593,16 +597,19 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
             notifyStatusChange();
         }
     };
+
     private DJIBaseComponent.DJIComponentListener mDJIComponentListener = new DJIBaseComponent.DJIComponentListener() {
         @Override
         public void onComponentConnectivityChanged(boolean isConnected) {
             notifyStatusChange();
         }
     };
+
     private void notifyStatusChange() {
-        mHandler.removeCallbacks(updateRunnable);
-        mHandler.postDelayed(updateRunnable, 500);
+        //mHandler.removeCallbacks(updateRunnable);
+        //mHandler.postDelayed(updateRunnable, 500);
     }
+
     private Runnable updateRunnable = new Runnable() {
         @Override
         public void run() {

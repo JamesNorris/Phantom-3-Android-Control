@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.health.PackageHealthStats;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -25,24 +26,33 @@ public class GPSFollowHandler implements LocationListener {
     private long last_send = -1;
     private MainUI dialog;
     private DJIFollowMeMission mission;
-    private Button button, button2;
+    private ToggleButton button, button2;
     private TextView vout;
 
     public GPSFollowHandler(MainUI dialog) {
         this.dialog = dialog;
-        button = (Button) dialog.findViewById(R.id.toggleButton);
-        button2 = (Button) dialog.findViewById(R.id.toggleButton2);
+        button = (ToggleButton) dialog.findViewById(R.id.toggleButton);
+        button2 = (ToggleButton) dialog.findViewById(R.id.toggleButton2);
         vout = ((TextView) dialog.findViewById(R.id.textView4));
     }
 
     @Override
     public void onLocationChanged(Location location) {
         long cur_time = System.currentTimeMillis();
-        if (last_send != -1 && cur_time - last_send < UPDATE_FREQUENCY_MS) {
+
+        vout.append("1, ");
+
+        if (button.isChecked()) {
+            vout.append("2, ");
+        }
+
+        if (last_send != -1 && (cur_time - last_send) < UPDATE_FREQUENCY_MS) {
             return;
         }
 
-        if ((!button2.isActivated()) || (!(button).isActivated())) {
+        if ((!button2.isChecked()) || (!(button).isChecked())) {
+            mission = null;
+            last_send = -1;
             return;//will only run when both buttons are toggled on
         }
 
@@ -52,6 +62,8 @@ public class GPSFollowHandler implements LocationListener {
         final float ber = location.getBearing();//0.0 to 360.0
 
         if (mission == null) {
+            vout.append("3, ");
+
             //init
             mission = new DJIFollowMeMission(lat, lon, (float) alt);
 
@@ -79,7 +91,9 @@ public class GPSFollowHandler implements LocationListener {
                     vout.append("Flight Command: Started\n");
                 }
             });
+
         } else {
+
             mission.updateFollowMeCoordinate(lat, lon, (float) alt, new DJICommonCallbacks.DJICompletionCallback() {
                 @Override
                 public void onResult(DJIError djiError) {
@@ -90,6 +104,7 @@ public class GPSFollowHandler implements LocationListener {
                     vout.append("Following: <" + lat + ", " + lon + ", " + alt + ", " + ber + ">\n");
                 }
             });
+
         }
 
         last_send = cur_time;
