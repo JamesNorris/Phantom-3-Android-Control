@@ -3,6 +3,7 @@ package com.term.jaiden.james.phantom3gpscommunication;
 import android.app.Dialog;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 
@@ -28,31 +29,35 @@ import dji.sdk.products.DJIAircraft;
 public class FlightStatusHandler implements View.OnClickListener {
     private boolean enabled = false;
     private MainUI dialog;
-    private DJIMission mission;
-    private TextView vout;
+    private ToggleButton button;
 
-    public FlightStatusHandler(MainUI dialog) {
+    public FlightStatusHandler(MainUI dialog, ToggleButton button) {
         this.dialog = dialog;
-        vout = ((TextView) dialog.findViewById(R.id.textView4));
+        this.button = button;
     }
 
     @Override
     public void onClick(View v) {
         DJIBaseProduct product = dialog.getBaseProduct();
         if (product == null) {
-            vout.append("Product null!\n");
+            dialog.uiConsolePrint("Product null!\n");
+            button.setChecked(enabled);
             return;
         }
 
         DJIFlightController fc = ((DJIAircraft) product).getFlightController();
         if (fc == null) {
-            vout.append("Flight Controller null!\n");
+            dialog.uiConsolePrint("Flight Controller null! Trying init...\n");
+            dialog.initFlightController();
+            button.setChecked(enabled);
             return;
         }
 
         //check connectivity
         if (!dialog.getMissionManager().isConnected()) {
-            System.out.println("NOT CONNECTED");
+            System.out.println("Mission Manager null! Trying init...");
+            dialog.initMissionManager();
+            button.setChecked(enabled);
             return;
         }
 
@@ -64,16 +69,16 @@ public class FlightStatusHandler implements View.OnClickListener {
 
             //take off
             System.out.println("[Flight Handler] Taking Off");
-            vout.append("[Flight Handler] Take Off\n");
+            dialog.uiConsolePrint("[Flight Handler] Take Off\n");
 
             fc.takeOff(new DJICommonCallbacks.DJICompletionCallback() {
                 @Override
                 public void onResult(DJIError djiError) {
                     if (djiError != null) {
-                        vout.append(djiError.getDescription() + "\n");
+                        dialog.uiConsolePrint(djiError.getDescription() + "\n");
                         return;
                     }
-                    vout.append("Flight Command: Take Off - Initialized\n");
+                    dialog.uiConsolePrint("Flight Command: Take Off - Initialized\n");
                 }
             });
 
@@ -81,18 +86,19 @@ public class FlightStatusHandler implements View.OnClickListener {
 
             //land
             System.out.println("[Flight Handler] Landing");
-            vout.append("[Flight Handler] Landing\n");
+            dialog.uiConsolePrint("[Flight Handler] Landing\n");
 
             fc.autoLanding(new DJICommonCallbacks.DJICompletionCallback() {
                 @Override
                 public void onResult(DJIError djiError) {
                     if (djiError != null) {
-                        vout.append(djiError.getDescription() + "\n");
+                        dialog.uiConsolePrint(djiError.getDescription() + "\n");
                         return;
                     }
-                    vout.append("Flight Command: Land - Initialized\n");
+                    dialog.uiConsolePrint("Flight Command: Land - Initialized\n");
                 }
             });
+
         }
     }
 }

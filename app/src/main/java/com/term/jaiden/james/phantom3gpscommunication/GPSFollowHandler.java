@@ -4,7 +4,7 @@ import android.app.Dialog;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
-import android.os.health.PackageHealthStats;
+//import android.os.health.PackageHealthStats;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -27,13 +27,11 @@ public class GPSFollowHandler implements LocationListener {
     private MainUI dialog;
     private DJIFollowMeMission mission;
     private ToggleButton button, button2;
-    private TextView vout;
 
     public GPSFollowHandler(MainUI dialog) {
         this.dialog = dialog;
         button = (ToggleButton) dialog.findViewById(R.id.toggleButton);
         button2 = (ToggleButton) dialog.findViewById(R.id.toggleButton2);
-        vout = ((TextView) dialog.findViewById(R.id.textView4));
     }
 
     @Override
@@ -69,7 +67,7 @@ public class GPSFollowHandler implements LocationListener {
             DJIMissionManager manager = dialog.getMissionManager();
 
             if (manager == null) {
-                vout.append("NULL MANAGER FOR GPS FOLLOW\n");
+                dialog.uiConsolePrint("NULL MANAGER FOR GPS FOLLOW\n");
                 return;
             }
 
@@ -79,10 +77,10 @@ public class GPSFollowHandler implements LocationListener {
                 @Override
                 public void onResult(DJIError djiError) {
                     if (djiError != null) {
-                        vout.append(djiError.getDescription() + "\n");
+                        dialog.uiConsolePrint(djiError.getDescription() + "\n");
                         return;
                     }
-                    vout.append("Flight Command: Follow - Initialized\n");
+                    dialog.uiConsolePrint("Flight Command: Follow - Initialized\n");
                 }
             });
 
@@ -93,10 +91,10 @@ public class GPSFollowHandler implements LocationListener {
                 @Override
                 public void onResult(DJIError djiError) {
                     if (djiError != null) {
-                        vout.append(djiError.getDescription() + "\n");
+                        dialog.uiConsolePrint(djiError.getDescription() + "\n");
                         return;
                     }
-                    vout.append("Flight Command: Started\n");
+                    dialog.uiConsolePrint("Flight Command: Started\n");
                 }
             });
 
@@ -104,16 +102,20 @@ public class GPSFollowHandler implements LocationListener {
 
         } else {
 
+            System.out.println("7");
+
             mission.updateFollowMeCoordinate(lat, lon, (float) alt, new DJICommonCallbacks.DJICompletionCallback() {
                 @Override
                 public void onResult(DJIError djiError) {
                     if (djiError != null) {
-                        ((TextView) dialog.findViewById(R.id.textView4)).append(djiError.getDescription() + "\n");
+                        dialog.uiConsolePrint(djiError.getDescription() + "\n");
                         return;
                     }
-                    vout.append("Following: <" + lat + ", " + lon + ", " + alt + ", " + ber + ">\n");
+                    dialog.uiConsolePrint("Following: <" + lat + ", " + lon + ", " + alt + ", " + ber + ">\n");
                 }
             });
+
+            System.out.println("8");
 
         }
 
