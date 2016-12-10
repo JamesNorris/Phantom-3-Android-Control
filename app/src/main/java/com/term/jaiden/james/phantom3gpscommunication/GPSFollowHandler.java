@@ -18,6 +18,7 @@ import dji.sdk.missionmanager.DJIMissionManager;
 
 public class GPSFollowHandler implements LocationListener {
     public static final long UPDATE_FREQUENCY_MS = 500;
+    public static final long FOLLOW_HEIGHT = 6;
     private long last_send = -1;
     private MainUI dialog;
     private DJIFollowMeMission mission;
@@ -59,7 +60,7 @@ public class GPSFollowHandler implements LocationListener {
             System.out.println("3");
 
             //prepare
-            DJIMissionManager manager = dialog.getMissionManager();
+            final DJIMissionManager manager = dialog.getMissionManager();
 
             if (manager == null) {
                 dialog.uiConsolePrint("NULL MANAGER FOR GPS FOLLOW\n");
@@ -76,20 +77,20 @@ public class GPSFollowHandler implements LocationListener {
                         return;
                     }
                     dialog.uiConsolePrint("Flight Command: Follow - Initialized\n");
-                }
-            });
 
-            System.out.println("5");
+                    System.out.println("5");
 
-            //execute
-            manager.startMissionExecution(new DJICommonCallbacks.DJICompletionCallback() {
-                @Override
-                public void onResult(DJIError djiError) {
-                    if (djiError != null) {
-                        dialog.uiConsolePrint(djiError.getDescription() + "\n");
-                        return;
-                    }
-                    dialog.uiConsolePrint("Flight Command: Started\n");
+                    //execute
+                    manager.startMissionExecution(new DJICommonCallbacks.DJICompletionCallback() {
+                        @Override
+                        public void onResult(DJIError djiError) {
+                            if (djiError != null) {
+                                dialog.uiConsolePrint(djiError.getDescription() + "\n");
+                                return;
+                            }
+                            dialog.uiConsolePrint("Flight Command: Started\n");
+                        }
+                    });
                 }
             });
 

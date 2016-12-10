@@ -11,6 +11,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.multidex.MultiDex;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -120,12 +121,18 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
 
         setContentView(R.layout.activity_main_ui);
         mHandler = new Handler(Looper.getMainLooper());
+
+        //init map
+        MultiDex.install(getApplicationContext());
         MapsInitializer.initialize(getApplicationContext());
 
         //set up vout
         vout = ((TextView) findViewById(R.id.textView4));
         vout.setGravity(Gravity.BOTTOM);
         vout.setMovementMethod(new ScrollingMovementMethod());
+
+        //TODO fix instructions
+        uiConsolePrint("DJI Phantom 3 Standard Aircraft Controller by:\nJames Norris and Jaiden Ferraccioli\n\nTo use this controller:\n1. Start with your device connected to a wireless signal other than that of the P3 remote.\n2. Start the remote, make sure the S1 switch is down all the way.\n3. Start the DJI Phantom 3 Standard aircraft and wait until the remote's power LED turns green.\n4. Connect your device to the P3 remote signal using your device's WiFi control.\n5. Wait until the flight controller has been initialized, then begin using the app.\n\n");
 
         Button flight = (Button) findViewById(R.id.toggleButton2);
         Button map = (Button) findViewById(R.id.map_v);
@@ -258,7 +265,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         //Create MarkerOptions object
         final MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(pos);
-        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.aircraft));
+        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.drone_aircraft));
 
         runOnUiThread(new Runnable() {
             @Override
@@ -739,5 +746,10 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         IntentFilter filter = new IntentFilter();
         filter.addAction(FLAG_CONNECTION_CHANGE);
         registerReceiver(mReceiver, filter);
+    }
+
+    protected synchronized void restartConnection() {
+        sdkManager.stopConnectionToProduct();
+        sdkManager.startConnectionToProduct();
     }
 }

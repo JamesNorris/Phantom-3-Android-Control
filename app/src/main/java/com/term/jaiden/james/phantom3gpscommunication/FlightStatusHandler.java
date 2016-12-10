@@ -26,31 +26,23 @@ public class FlightStatusHandler implements View.OnClickListener {
                 return;//TODO would the button ever be wrong?
             }
 
+            verifyCorrectToggle();
+
             //fix broken connection
             String desc = djiError.getDescription().trim();
-            if (desc.equals("Not Support")) {
-                dialog.uiConsolePrint("Broken connection!\nPerhaps the drone is at low battery?");
+            if (desc.equals("Not Support")) {//TODO what is this error?
+                dialog.uiConsolePrint("Broken connection!\nPerhaps the drone is at low battery?\n");
+                dialog.restartConnection();
                 dialog.refreshReceiver();
                 return;
             }
 
-            //prevent mistoggled button
-            dialog.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    boolean check = false;
-                    DJIAircraft ac = ((DJIAircraft) dialog.getBaseProduct());
-                    DJIFlightController fc = null;
-                    if (ac != null) {
-                        fc = ac.getFlightController();
-                    }
-                    if (fc != null) {
-                        check = fc.getCurrentState().areMotorsOn();
-                    }
-                    button.setChecked(check);
-                    enabled = check;
-                }
-            });
+            if (djiError == DJIError.COMMON_TIMEOUT) {
+                dialog.uiConsolePrint("Timed out!\nPerhaps there's a connection issue?\nUnless something happened, try restarting the app.\n");
+                dialog.restartConnection();
+                dialog.refreshReceiver();
+                return;
+            }
 
             dialog.uiConsolePrint(desc + "\n");
         }
@@ -87,6 +79,13 @@ public class FlightStatusHandler implements View.OnClickListener {
             return;
         }
 
+        /*
+        if (!verifyCorrectToggle()) {
+            System.out.println("was incorrect toggle?");
+            return;//TODO fix,
+        }
+        */
+
         //toggle
         enabled = !enabled;
 
@@ -110,5 +109,26 @@ public class FlightStatusHandler implements View.OnClickListener {
         }
 
         button.setChecked(enabled);
+    }
+
+    protected boolean verifyCorrectToggle() {
+        final boolean toggled = button.isChecked();
+        dialog.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                boolean check = false;
+                DJIAircraft ac = ((DJIAircraft) dialog.getBaseProduct());
+                DJIFlightController fc = null;
+                if (ac != null) {
+                    fc = ac.getFlightController();
+                }
+                if (fc != null) {
+                    check = fc.getCurrentState().areMotorsOn();
+                }
+                button.setChecked(check);
+                enabled = check;
+            }
+        });
+        return (toggled == enabled);//was correct initially
     }
 }

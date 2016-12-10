@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main_ui"
     android:layout_width="match_parent"
@@ -43,18 +44,9 @@
         android:scrollbars="vertical"
         android:textColor="@android:color/black"
         android:layout_above="@+id/textView2"
-        android:layout_below="@+id/textView3"
         android:layout_toStartOf="@+id/locate"
-        android:layout_alignParentEnd="true" />
-
-    <TextView
-        android:text="This app will allow you to command the Phantom 3 Drone to take off, follow this device, and land upon request."
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView3"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:layout_toStartOf="@+id/textView" />
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/imageView" />
 
     <TextView
         android:text="Aircraft Control:"
@@ -65,15 +57,6 @@
         android:layout_above="@+id/toggleButton2"
         android:layout_alignParentStart="true" />
 
-    <TextView
-        android:text="Developed by:\nJames Norris\nJaiden Ferraccioli"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:gravity="bottom"/>
-
     <Button
         android:text="Map"
         android:layout_width="wrap_content"
@@ -82,5 +65,13 @@
         android:layout_above="@+id/toggleButton"
         android:layout_alignStart="@+id/textView"
         android:layout_alignParentEnd="true" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@mipmap/ui_icon"
+        android:id="@+id/imageView"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
