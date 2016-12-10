@@ -2,22 +2,16 @@ package com.term.jaiden.james.phantom3gpscommunication;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Application;
-import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.multidex.MultiDex;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
@@ -45,14 +39,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import dji.common.battery.DJIBatteryState;
 import dji.common.error.DJIError;
+import dji.common.error.DJISDKError;
 import dji.common.flightcontroller.DJIFlightControllerCurrentState;
 import dji.common.util.DJICommonCallbacks;
 import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.base.DJIBaseProduct;
-import dji.common.error.DJISDKError;
-import dji.sdk.battery.DJIBattery;
 import dji.sdk.flightcontroller.DJIFlightController;
 import dji.sdk.flightcontroller.DJIFlightControllerDelegate;
 import dji.sdk.missionmanager.DJIMission;
@@ -60,9 +52,7 @@ import dji.sdk.missionmanager.DJIMissionManager;
 import dji.sdk.missionmanager.DJIWaypoint;
 import dji.sdk.missionmanager.DJIWaypointMission;
 import dji.sdk.products.DJIAircraft;
-import dji.sdk.sdkmanager.DJIAoaControllerActivity;
 import dji.sdk.sdkmanager.DJISDKManager;
-import dji.sdksharedlib.hardware.a;
 
 public class MainUI extends AppCompatActivity implements View.OnClickListener, GoogleMap.OnMapClickListener, OnMapReadyCallback {
     private static final String TAG = MainUI.class.getName();
@@ -90,12 +80,6 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
     protected void onResume() {
         super.onResume();
         System.out.println("onResume");
-        /*
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(FLAG_CONNECTION_CHANGE);
-        registerReceiver(mReceiver, filter);
-        onProductConnectionChange();
-        */
     }
 
     @Override
@@ -114,63 +98,14 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
 
     public void onReturn(View view) {
         System.out.println("onReturn");
-        //Log.d(TAG, "onReturn");
         //this.finish();
     }
-
-    /*
-    protected void attachBaseContext(Context base){
-        super.attachBaseContext(base);
-        MultiDex.install(this);
-    }*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         System.out.println("onCreate");
-
-        //MultiDex.install(this);
-
-        /*
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_PHONE_STATE)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.READ_PHONE_STATE)) {
-            } else {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.READ_PHONE_STATE},
-                        1);
-            }
-        }
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-            } else {
-
-                // No explanation needed, we can request the permission.
-
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        1);
-
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS (changed to 1) is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
-            }
-        }
-        */
 
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.VIBRATE,
@@ -180,44 +115,11 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
                         Manifest.permission.CHANGE_WIFI_STATE, Manifest.permission.MOUNT_UNMOUNT_FILESYSTEMS,
                         Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.SYSTEM_ALERT_WINDOW,
                         Manifest.permission.READ_PHONE_STATE,
-                }
-                , 1);
+                }, 1);
 
-        /*
-        int REQUEST_EXTERNAL_STORAGE = 1;
-        String[] PERMISSIONS_STORAGE = {
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-        };
-
-        int permission = ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
-            ActivityCompat.requestPermissions(
-                    this,
-                    PERMISSIONS_STORAGE,
-                    REQUEST_EXTERNAL_STORAGE
-            );
-        }*/
 
         setContentView(R.layout.activity_main_ui);
-
-        //Initialize DJI SDK Manager
         mHandler = new Handler(Looper.getMainLooper());
-
-
-        /*try {
-            Thread.currentThread().wait(500);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }*/
-
-        //System.setProperty("http.keepAlive", "false");
-        //attemptConnection();
-
-        //Register BroadcastReceiver
-
         MapsInitializer.initialize(getApplicationContext());
 
         //set up vout
@@ -235,22 +137,17 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         try {
             //register for GPS updates
             System.out.println("onCreate 0.3");
-            //GPSFollowHandler fh = new GPSFollowHandler(this);
+            GPSFollowHandler fh = new GPSFollowHandler(this);
             System.out.println("onCreate 0.4");
             LocationManager lm = ((LocationManager) getSystemService(Context.LOCATION_SERVICE));
             //lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0/*GPSFollowHandler.UPDATE_FREQUENCY_MS, .5F/*meter*/, fh);
-            //lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0/*GPSFollowHandler.UPDATE_FREQUENCY_MS, .5F/*meter*/, fh);
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0/*GPSFollowHandler.UPDATE_FREQUENCY_MS, .5F/*meter*/, fh);
 
             System.out.println("onCreate 0.5");
         } catch (SecurityException ex) {
             ex.printStackTrace();
             uiConsolePrint(ex.toString() + "\n");
         }
-
-        //attemptConnection();
-
-        //updateDroneLocation();
-        //notifyStatusChange();
 
         System.out.println("onCreate 1");
 
@@ -259,9 +156,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
 
         System.out.println("onCreate 2");
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(FLAG_CONNECTION_CHANGE);
-        registerReceiver(mReceiver, filter);
+        startReceiver();
     }
 
     protected BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -276,8 +171,6 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
 
     private synchronized void onProductConnectionChange() {
         System.out.println("onProductConnectionChange");
-        //notifyStatusChange();
-        //sdkManager.startConnectionToProduct();
         initFlightController();
         initMissionManager();
     }
@@ -307,7 +200,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
                 @Override
                 public void onResult(DJIFlightControllerCurrentState state) {
                     if (last != -1 || System.currentTimeMillis() - last < GPSFollowHandler.UPDATE_FREQUENCY_MS) {
-                        return;
+                        return;//only update at the usual GPS update frequency
                     }
 
                     double lat = state.getAircraftLocation().getLatitude();
@@ -360,7 +253,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         }
 
         LatLng pos = new LatLng(lat, lon);
-        //uiConsolePrint("Update drone location to " + pos + "\n");
+        //uiConsolePrint("Update drone location to " + pos + "\n");//this got annoying
 
         //Create MarkerOptions object
         final MarkerOptions markerOptions = new MarkerOptions();
@@ -756,25 +649,8 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
             if (error == DJISDKError.REGISTRATION_SUCCESS) {
                 sdkManager.startConnectionToProduct();
                 uiConsolePrint("App Registered Successfully\n");
-                /*
-                Handler handler = new Handler(Looper.getMainLooper());
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(), "Register App Successful", Toast.LENGTH_LONG).show();
-                    }
-                });*/
             } else {
                 uiConsolePrint("App Failed to Register!\n");
-                /*
-                Handler handler = new Handler(Looper.getMainLooper());
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(), "Register App Failed! Please enter your App Key and check the network.", Toast.LENGTH_LONG).show();
-                    }
-                });
-                */
             }
             Log.e("TAG", error.getDescription());
         }
@@ -854,8 +730,12 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         return sdkManager;
     }
 
-    public synchronized void refreshReceiver() {
+    protected synchronized void refreshReceiver() {
         unregisterReceiver(mReceiver);
+        startReceiver();
+    }
+
+    protected synchronized void startReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(FLAG_CONNECTION_CHANGE);
         registerReceiver(mReceiver, filter);

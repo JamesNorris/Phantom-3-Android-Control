@@ -1,21 +1,16 @@
 package com.term.jaiden.james.phantom3gpscommunication;
 
-import android.app.Dialog;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
-//import android.os.health.PackageHealthStats;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.ToggleButton;
-
-import java.io.File;
-import java.io.FileWriter;
 
 import dji.common.error.DJIError;
 import dji.common.util.DJICommonCallbacks;
 import dji.sdk.missionmanager.DJIFollowMeMission;
 import dji.sdk.missionmanager.DJIMissionManager;
+
+//import android.os.health.PackageHealthStats;
 
 /**
  * Created by James on 11/20/2016.

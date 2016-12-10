@@ -1,25 +1,12 @@
 package com.term.jaiden.james.phantom3gpscommunication;
 
-import android.app.Dialog;
-import android.content.BroadcastReceiver;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.ToggleButton;
-
-import java.util.ArrayList;
 
 import dji.common.error.DJIError;
 import dji.common.util.DJICommonCallbacks;
-import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.base.DJIBaseProduct;
 import dji.sdk.flightcontroller.DJIFlightController;
-import dji.sdk.flightcontroller.DJIFlightControllerDelegate;
-import dji.sdk.missionmanager.DJICustomMission;
-import dji.sdk.missionmanager.DJIMission;
-import dji.sdk.missionmanager.DJIMissionManager;
-import dji.sdk.missionmanager.DJIWaypointMission;
-import dji.sdk.missionmanager.missionstep.DJIMissionStep;
-import dji.sdk.missionmanager.missionstep.DJITakeoffStep;
 import dji.sdk.products.DJIAircraft;
 
 
