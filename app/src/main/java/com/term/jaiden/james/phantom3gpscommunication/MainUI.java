@@ -89,6 +89,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
     @Override
     protected void onResume() {
         super.onResume();
+        System.out.println("onResume");
         /*
         IntentFilter filter = new IntentFilter();
         filter.addAction(FLAG_CONNECTION_CHANGE);
@@ -100,16 +101,19 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
     @Override
     protected void onPause() {
         super.onPause();
+        System.out.println("onPause");
         //unregisterReceiver(mReceiver);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //unregisterReceiver(mReceiver);
+        System.out.println("onDestroy");
+        unregisterReceiver(mReceiver);
     }
 
     public void onReturn(View view) {
+        System.out.println("onReturn");
         //Log.d(TAG, "onReturn");
         //this.finish();
     }
@@ -124,8 +128,11 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        System.out.println("onCreate");
+
         //MultiDex.install(this);
 
+        /*
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_PHONE_STATE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -163,6 +170,18 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
                 // result of the request.
             }
         }
+        */
+
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.VIBRATE,
+                        Manifest.permission.INTERNET, Manifest.permission.ACCESS_WIFI_STATE,
+                        Manifest.permission.WAKE_LOCK, Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.CHANGE_WIFI_STATE, Manifest.permission.MOUNT_UNMOUNT_FILESYSTEMS,
+                        Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.SYSTEM_ALERT_WINDOW,
+                        Manifest.permission.READ_PHONE_STATE,
+                }
+                , 1);
 
         /*
         int REQUEST_EXTERNAL_STORAGE = 1;
@@ -201,10 +220,6 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
 
         MapsInitializer.initialize(getApplicationContext());
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(FLAG_CONNECTION_CHANGE);
-        registerReceiver(mReceiver, filter);
-
         //set up vout
         vout = ((TextView) findViewById(R.id.textView4));
         vout.setGravity(Gravity.BOTTOM);
@@ -212,16 +227,21 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
 
         Button flight = (Button) findViewById(R.id.toggleButton2);
         Button map = (Button) findViewById(R.id.map_v);
+        System.out.println("onCreate 0.1");
         flight.setOnClickListener(new FlightStatusHandler(this, (ToggleButton) flight));
+        System.out.println("onCreate 0.2");
         map.setOnClickListener(this);
 
         try {
             //register for GPS updates
-            GPSFollowHandler fh = new GPSFollowHandler(this);
+            System.out.println("onCreate 0.3");
+            //GPSFollowHandler fh = new GPSFollowHandler(this);
+            System.out.println("onCreate 0.4");
             LocationManager lm = ((LocationManager) getSystemService(Context.LOCATION_SERVICE));
             //lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0/*GPSFollowHandler.UPDATE_FREQUENCY_MS, .5F/*meter*/, fh);
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0/*GPSFollowHandler.UPDATE_FREQUENCY_MS, .5F/*meter*/, fh);
+            //lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0/*GPSFollowHandler.UPDATE_FREQUENCY_MS, .5F/*meter*/, fh);
 
+            System.out.println("onCreate 0.5");
         } catch (SecurityException ex) {
             ex.printStackTrace();
             uiConsolePrint(ex.toString() + "\n");
@@ -232,20 +252,30 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         //updateDroneLocation();
         //notifyStatusChange();
 
+        System.out.println("onCreate 1");
+
         sdkManager = DJISDKManager.getInstance();
         sdkManager.initSDKManager(this, mDJISDKManagerCallback);
+
+        System.out.println("onCreate 2");
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(FLAG_CONNECTION_CHANGE);
+        registerReceiver(mReceiver, filter);
     }
 
     protected BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (getResultCode() == Activity.RESULT_OK) {
+                System.out.println("mReciever");
                 onProductConnectionChange();
             }
         }
     };
 
     private synchronized void onProductConnectionChange() {
+        System.out.println("onProductConnectionChange");
         //notifyStatusChange();
         //sdkManager.startConnectionToProduct();
         initFlightController();
@@ -253,6 +283,9 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
     }
 
     protected synchronized void initFlightController() {
+
+        System.out.println("initFC");
+
         if (mFlightController != null) {
             return;
         }
@@ -269,8 +302,14 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
 
             mFlightController.setUpdateSystemStateCallback(new DJIFlightControllerDelegate.FlightControllerUpdateSystemStateCallback() {
 
+                private long last = -1;
+
                 @Override
                 public void onResult(DJIFlightControllerCurrentState state) {
+                    if (last != -1 || System.currentTimeMillis() - last < GPSFollowHandler.UPDATE_FREQUENCY_MS) {
+                        return;
+                    }
+
                     double lat = state.getAircraftLocation().getLatitude();
                     double lon = state.getAircraftLocation().getLongitude();
 
@@ -287,6 +326,8 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
                     save.lon = lon;
 
                     updateDroneLocation();
+
+                    last = System.currentTimeMillis();
                 }
 
             });
@@ -311,6 +352,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
     }
 
     private synchronized void updateDroneLocation() {
+        System.out.println("updateDroneLoc");
         if (!checkGpsCoordinates(lat, lon)) {
             //already checked, they shouldn't be invalid
             uiConsolePrint("Internal location error!\n");
@@ -318,7 +360,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
         }
 
         LatLng pos = new LatLng(lat, lon);
-        uiConsolePrint("Update drone location to " + pos + "\n");
+        //uiConsolePrint("Update drone location to " + pos + "\n");
 
         //Create MarkerOptions object
         final MarkerOptions markerOptions = new MarkerOptions();
@@ -485,11 +527,11 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
     }
 
     protected synchronized void initMissionManager() {
+        System.out.println("initMissionMan");
         if (mProduct == null || !mProduct.isConnected()) {
 
             setResultToToast("Product Not Connected");
             mMissionManager = null;
-            return;
 
         } else {
 
@@ -499,6 +541,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
             //mMissionManager.setMissionExecutionFinishedCallback(this);
 
         }
+        System.out.println("initMissionMan 1");
         //mWaypointMission = new DJIWaypointMission();
     }
 
@@ -632,6 +675,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
 
     @Override
     public void onClick(View v) {
+        System.out.println("onClick");
         switch (v.getId()) {
             case R.id.map_v: {
                 showMapDialog();//TODO can only instantiate once
@@ -707,6 +751,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
     private DJISDKManager.DJISDKManagerCallback mDJISDKManagerCallback = new DJISDKManager.DJISDKManagerCallback() {
         @Override
         public void onGetRegisteredResult(DJIError error) {
+            System.out.println("mDJISDKMC");
             Log.d(TAG, error == null ? "success" : error.getDescription());
             if (error == DJISDKError.REGISTRATION_SUCCESS) {
                 sdkManager.startConnectionToProduct();
@@ -736,6 +781,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
 
         @Override
         public void onProductChanged(DJIBaseProduct oldProduct, DJIBaseProduct newProduct) {
+            System.out.println("onProductChanged");
             if (newProduct == oldProduct) {
                 return;
             }
@@ -750,6 +796,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
     private DJIBaseProduct.DJIBaseProductListener mDJIBaseProductListener = new DJIBaseProduct.DJIBaseProductListener() {
         @Override
         public void onComponentChange(DJIBaseProduct.DJIComponentKey key, DJIBaseComponent oldComponent, DJIBaseComponent newComponent) {
+            System.out.println("onCompChanged");
             if (newComponent == oldComponent) {
                 return;
             }
@@ -761,6 +808,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
 
         @Override
         public void onProductConnectivityChanged(boolean isConnected) {
+            System.out.println("onProdConnChanged");
             uiConsolePrint((isConnected ? "Connected" : "Disconnected") + "\n");
             notifyStatusChange();
         }
@@ -769,11 +817,13 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
     private DJIBaseComponent.DJIComponentListener mDJIComponentListener = new DJIBaseComponent.DJIComponentListener() {
         @Override
         public void onComponentConnectivityChanged(boolean isConnected) {
+            System.out.println("onCompConnChanged");
             notifyStatusChange();
         }
     };
 
     protected synchronized void notifyStatusChange() {
+        System.out.println("notifyStatusChange");
         mHandler.removeCallbacks(updateRunnable);
         mHandler.postDelayed(updateRunnable, 500);
     }
@@ -782,6 +832,7 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
 
         @Override
         public void run() {
+            System.out.println("updRunnable");
             Intent intent = new Intent(FLAG_CONNECTION_CHANGE);
             sendBroadcast(intent);
         }
@@ -797,5 +848,16 @@ public class MainUI extends AppCompatActivity implements View.OnClickListener, G
 
     public synchronized DJIBaseProduct getBaseProduct() {
         return mProduct;
+    }
+
+    public synchronized DJISDKManager getDJISDKManager() {
+        return sdkManager;
+    }
+
+    public synchronized void refreshReceiver() {
+        unregisterReceiver(mReceiver);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(FLAG_CONNECTION_CHANGE);
+        registerReceiver(mReceiver, filter);
     }
 }

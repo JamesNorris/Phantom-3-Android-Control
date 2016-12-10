@@ -1,6 +1,7 @@
 package com.term.jaiden.james.phantom3gpscommunication;
 
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -31,6 +32,43 @@ public class FlightStatusHandler implements View.OnClickListener {
     private MainUI dialog;
     private ToggleButton button;
 
+    private final DJICommonCallbacks.DJICompletionCallback toggleFlyCallback = new DJICommonCallbacks.DJICompletionCallback() {
+        @Override
+        public void onResult(DJIError djiError) {
+            if (djiError == null) {
+                return;//TODO would the button ever be wrong?
+            }
+
+            //fix broken connection
+            String desc = djiError.getDescription().trim();
+            if (desc.equals("Not Support")) {
+                dialog.uiConsolePrint("Broken connection!\nPerhaps the drone is at low battery?");
+                dialog.refreshReceiver();
+                return;
+            }
+
+            //prevent mistoggled button
+            dialog.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    boolean check = false;
+                    DJIAircraft ac = ((DJIAircraft) dialog.getBaseProduct());
+                    DJIFlightController fc = null;
+                    if (ac != null) {
+                        fc = ac.getFlightController();
+                    }
+                    if (fc != null) {
+                        check = fc.getCurrentState().areMotorsOn();
+                    }
+                    button.setChecked(check);
+                    enabled = check;
+                }
+            });
+
+            dialog.uiConsolePrint(desc + "\n");
+        }
+    };
+
     public FlightStatusHandler(MainUI dialog, ToggleButton button) {
         this.dialog = dialog;
         this.button = button;
@@ -40,7 +78,8 @@ public class FlightStatusHandler implements View.OnClickListener {
     public void onClick(View v) {
         DJIBaseProduct product = dialog.getBaseProduct();
         if (product == null) {
-            dialog.uiConsolePrint("Product null!\n");
+            dialog.uiConsolePrint("Product null!\nAre you sure the devices are connected?\n");
+            //dialog.getSDKManager().startConnectionToProduct();
             button.setChecked(enabled);
             return;
         }
@@ -68,37 +107,21 @@ public class FlightStatusHandler implements View.OnClickListener {
         if (enabled) {
 
             //take off
-            System.out.println("[Flight Handler] Taking Off");
-            dialog.uiConsolePrint("[Flight Handler] Take Off\n");
+            System.out.println("[Flight Handler] Take Off");
+            dialog.uiConsolePrint("Flight Command: Take Off\n");
 
-            fc.takeOff(new DJICommonCallbacks.DJICompletionCallback() {
-                @Override
-                public void onResult(DJIError djiError) {
-                    if (djiError != null) {
-                        dialog.uiConsolePrint(djiError.getDescription() + "\n");
-                        return;
-                    }
-                    dialog.uiConsolePrint("Flight Command: Take Off - Initialized\n");
-                }
-            });
+            fc.takeOff(toggleFlyCallback);
 
         } else {
 
             //land
-            System.out.println("[Flight Handler] Landing");
-            dialog.uiConsolePrint("[Flight Handler] Landing\n");
+            System.out.println("[Flight Handler] Land");
+            dialog.uiConsolePrint("Flight Command: Land\n");
 
-            fc.autoLanding(new DJICommonCallbacks.DJICompletionCallback() {
-                @Override
-                public void onResult(DJIError djiError) {
-                    if (djiError != null) {
-                        dialog.uiConsolePrint(djiError.getDescription() + "\n");
-                        return;
-                    }
-                    dialog.uiConsolePrint("Flight Command: Land - Initialized\n");
-                }
-            });
+            fc.autoLanding(toggleFlyCallback);
 
         }
+
+        button.setChecked(enabled);
     }
 }

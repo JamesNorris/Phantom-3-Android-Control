@@ -36,7 +36,7 @@ public class GPSFollowHandler implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-        if ((!button2.isChecked()) || (!(button).isChecked())) {
+        if ((!button2.isChecked()) || (!button.isChecked())) {
             mission = null;
             last_send = -1;
             return;//will only run when both buttons are toggled on
